@@ -1,0 +1,17 @@
+# deepseek-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: deepseek-service
+  labels:
+    app: deepseek-32b
+spec:
+  type: NodePort  # 暴露到节点端口
+  selector:
+    app: deepseek-32b  # 必须与Deployment标签匹配
+  ports:
+    - name: api
+      port: 7000       # 服务暴露端口
+      targetPort: 7000 # 容器端口
+      protocol: TCP
+      nodePort: 30080  # 手动指定节点端口（范围30000-32767）

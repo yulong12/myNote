@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: imagebind-service
+spec:
+  selector:
+    app: imagebind-api
+  ports:
+    - protocol: TCP
+      port: 8608
+      targetPort: 8608
+      nodePort: 30060
+  type: NodePort

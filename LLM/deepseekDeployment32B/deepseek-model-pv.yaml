@@ -1,0 +1,14 @@
+# deepseek-model-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: deepseek-model-pv
+spec:
+  capacity:
+    storage: 300Gi
+  accessModes:
+    - ReadOnlyMany
+  nfs:
+    server: 10.5.5.25 # 替换为实际NFS服务器IP
+    path: /data/nfs_share/DeepSeek-R1-Distill-Qwen-32B
+  storageClassName: ""

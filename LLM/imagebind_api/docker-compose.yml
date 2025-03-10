@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  imagebind-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models  # 挂载模型目录（可选）
+      - ./data:/app/data      # 挂载测试数据目录（可选）
+    environment:
+      - TZ=Asia/Shanghai
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

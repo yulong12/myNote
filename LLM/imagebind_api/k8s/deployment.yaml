@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imagebind-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: imagebind-api
+  template:
+    metadata:
+      labels:
+        app: imagebind-api
+    spec:
+      containers:
+      - name: api
+        image: 10.5.5.25:8080/imagebind/imagebind-api:1.0
+        command: ["/bin/sh", "-c"]
+        args: [
+          "python3 /imagebind_api/app/imagebind_api.py"
+        ]      
+        ports:
+        - containerPort: 8608
+        resources:
+          limits:
+            nvidia.com/gpu: 1  # 使用GPU加速
+            memory: 8Gi
+          requests:
+            memory: 4Gi
+ 

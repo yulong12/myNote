@@ -1,0 +1,62 @@
+# deepseek-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deepseek-32b
+  labels:
+    app: deepseek-32b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deepseek-32b
+  template:
+    metadata:
+      labels:
+        app: deepseek-32b
+    spec:
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: deepseek-model-pvc
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: "10Gi"  # 增大共享内存
+      containers:
+      - name: deepseek-32b
+        image: 10.5.5.25:8080/vllm/vllm-openai:v0.7.3
+        command: ["/bin/sh", "-c"]
+        args: [
+          "vllm serve /model --port 7000 --host 0.0.0.0 --trust-remote-code --served-model-name model_32B --tensor-parallel-size 2 --max-num-seqs 128"
+        ]
+        ports:
+        - containerPort: 7000
+          name: api
+        resources:
+          limits:
+            cpu: "16"
+            memory: 80Gi
+            nvidia.com/gpu: "2"  # 需要至少2块GPU
+          requests:
+            cpu: "8"
+            memory: 70Gi
+            nvidia.com/gpu: "2"
+        volumeMounts:
+        - mountPath: /model
+          name: model-volume
+          readOnly: true
+        - name: shm
+          mountPath: /dev/shm
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 7000
+          initialDelaySeconds: 120  # 延长初始化等待时间
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 7000
+          initialDelaySeconds: 120
+          periodSeconds: 15
