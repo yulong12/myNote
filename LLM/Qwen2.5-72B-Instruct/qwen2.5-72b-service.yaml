@@ -1,0 +1,17 @@
+# deepseek-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwen25-72b-service
+  labels:
+    app: qwen2.5-72b
+spec:
+  type: NodePort  # 暴露到节点端口
+  selector:
+    app: qwen2.5-72b # 必须与Deployment标签匹配
+  ports:
+    - name: http
+      port: 6999       # 服务暴露端口
+      targetPort: 6999 # 容器端口
+      protocol: TCP
+      nodePort: 30070  # 手动指定节点端口（范围30000-32767）

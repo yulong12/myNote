@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen25-72b
+  labels:
+    app: qwen2.5-72b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: qwen2.5-72b
+  template:
+    metadata:
+      labels:
+        app: qwen2.5-72b
+    spec:
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: qwen2.5-72b-pvc
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: "40Gi"  # 增大共享内存
+      containers:
+      - name: qwen-72b
+        image: 10.5.5.25:8080/vllm/vllm-openai:v0.7.3
+        command: ["/bin/sh", "-c"]
+        args: [
+          "vllm serve /model --port 6999 --host 0.0.0.0 --trust-remote-code --tensor-parallel-size 8 --max-num-seqs 128"
+        ]
+        ports:
+        - containerPort: 6999
+        resources:
+          limits:
+            cpu: "96"
+            memory: 80Gi
+            nvidia.com/gpu: "8"  # 需要至少8块GPU
+          requests:
+            cpu: "8"
+            memory: 70Gi
+            nvidia.com/gpu: "8"
+        volumeMounts:
+        - mountPath: /model
+          name: model-volume
+          readOnly: true
+        - name: shm
+          mountPath: /dev/shm
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 6999
+          initialDelaySeconds: 480  # 延长初始化等待时间
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 6999
+          initialDelaySeconds: 480
+          periodSeconds: 15

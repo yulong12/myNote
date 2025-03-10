@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qwen2.5-72b-pv
+spec:
+  capacity:
+    storage: 300Gi
+  accessModes:
+    - ReadOnlyMany
+  nfs:
+    server: 10.5.5.25 # 替换为实际NFS服务器IP
+    path: /data/nfs_share/Qwen2.5-72B-Instruct
+  storageClassName: ""
