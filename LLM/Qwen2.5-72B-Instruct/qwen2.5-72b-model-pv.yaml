@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: qwen2.5-72b-pv
+  namespace: monitoring
 spec:
   capacity:
     storage: 300Gi
